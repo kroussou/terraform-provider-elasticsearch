@@ -40,6 +40,14 @@ func resourceElasticsearchOpenDistroISMPolicy() *schema.Resource {
 					return json
 				},
 			},
+			"body_json": {
+				Type:     schema.TypeString,
+				Computed: true,
+				StateFunc: func(v interface{}) string {
+					json, _ := structure.NormalizeJsonString(v)
+					return json
+				},
+			},
 			"primary_term": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -91,7 +99,10 @@ func resourceElasticsearchOpenDistroISMPolicyRead(d *schema.ResourceData, m inte
 	if err := d.Set("policy_id", policyResponse.PolicyID); err != nil {
 		return fmt.Errorf("error setting policy_id: %s", err)
 	}
-	if err := d.Set("body", bodyStringNormalized); err != nil {
+	if err := d.Set("body_json", bodyStringNormalized); err != nil {
+		return fmt.Errorf("error setting body json: %s", err)
+	}
+	if err := d.Set("body", d.Get("body")); err != nil {
 		return fmt.Errorf("error setting body: %s", err)
 	}
 	if err := d.Set("primary_term", policyResponse.PrimaryTerm); err != nil {

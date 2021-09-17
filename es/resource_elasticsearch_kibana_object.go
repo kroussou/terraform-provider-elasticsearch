@@ -59,7 +59,14 @@ func resourceElasticsearchKibanaObject() *schema.Resource {
 
 					return warnings, errors
 				},
-				// DiffSuppressFunc: diffSuppressKibanaObject,
+				StateFunc: func(v interface{}) string {
+					json, _ := structure.NormalizeJsonString(v)
+					return json
+				},
+			},
+			"body_json": {
+				Type:     schema.TypeString,
+				Computed: true,
 				StateFunc: func(v interface{}) string {
 					json, _ := structure.NormalizeJsonString(v)
 					return json
@@ -240,7 +247,8 @@ func resourceElasticsearchKibanaObjectRead(d *schema.ResourceData, meta interfac
 	if err != nil {
 		return fmt.Errorf("error marshalling resource data: %+v", err)
 	}
-	ds.set("body", string(state))
+	ds.set("body_json", string(state))
+	ds.set("body", d.Get("body"))
 
 	return ds.err
 }
